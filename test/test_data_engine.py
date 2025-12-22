@@ -8,7 +8,7 @@ from pathlib import Path
 src_path = Path(__file__).parent / "src"
 sys.path.insert(0, str(src_path))
 
-from data_engine import DataManager
+from src.data_engine import DataManager
 
 
 def test_market_identification():

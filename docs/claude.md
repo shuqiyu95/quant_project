@@ -14,6 +14,7 @@ quant_project/
 │   ├── backtester/       # 回测引擎 (Backtrader封装)
 │   └── utils/            # 交易日历、时区转换等工具
 ├── data/                 # 本地缓存 (Parquet/CSV)
+├── test/                 # 测试脚本路径
 └── main.py               # 策略运行脚本
 3. 技术规范 (Technology Stack)
 Python: 3.10+
@@ -33,6 +34,8 @@ US: yfinance
 CN: AkShare
 
 L2/L3: 预留 tick_data 处理接口，支持大单流分析。
+
+每当完成一个核心模块，请自动在 test/ 目录下生成对应的测试文件。确保所有测试都能通过 pytest 指令一键运行。
 
 4. 关键逻辑约束 (Core Logic)
     4.1 跨市场处理A股: 考虑 T+1 制度，印花税 (0.05%)，涨跌停限制。美股: 考虑 T+0 制度，最小交易单位 1 股。时区: 统一处理为 Timestamp 对象，避免硬编码时区偏移。
