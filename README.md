@@ -12,6 +12,7 @@
   - A股: AkShare
 - ✅ **数据缓存**: Parquet 格式本地缓存，加速数据访问
 - ✅ **时区处理**: 自动处理不同市场的时区（US/Eastern, Asia/Shanghai）
+- ✅ **数据集管理** 🆕: 保存/加载处理好的训练测试数据集，节省 60-80% 时间
 
 ### 因子库 (NEW! 🎉)
 - ✅ **30+ 基础算子**: Ref, MA, Std, Slope, RSI, MACD 等
@@ -34,19 +35,30 @@ quant_project/
 │   │   ├── us_fetcher.py # 美股数据获取
 │   │   ├── cn_fetcher.py # A股数据获取
 │   │   └── data_manager.py # 数据管理器
-│   ├── factors/          # 因子计算层 (NEW! ✅)
+│   ├── factors/          # 因子计算层 ✅
 │   │   ├── operators.py  # 基础算子（30+ 个）
 │   │   ├── alpha158.py   # Alpha158 因子库
 │   │   ├── alpha360.py   # Alpha360 因子库
 │   │   └── __init__.py   # 模块导出
-│   ├── models/           # 机器学习模型 (待实现)
-│   ├── backtester/       # 回测引擎 (待实现)
+│   ├── models/           # 机器学习模型 (NEW! ✅)
+│   │   ├── rank_loss.py  # RankLoss 函数
+│   │   ├── feature_engineering.py # 特征工程
+│   │   ├── predictor.py  # 预测模型
+│   │   └── __init__.py
+│   ├── backtester/       # 回测引擎 (NEW! ✅)
+│   │   ├── engine.py     # 回测引擎
+│   │   ├── strategy.py   # 交易策略
+│   │   ├── performance.py # 性能分析
+│   │   └── __init__.py
 │   └── utils/            # 工具函数 (待实现)
 ├── data/                 # 本地数据缓存
 ├── test/                 # 测试脚本
 │   ├── test_data_engine.py
-│   └── test_factors.py   # 因子测试 (NEW!)
-├── example_factors.py    # 因子使用示例 (NEW!)
+│   ├── test_factors.py
+│   ├── test_models.py    # 模型测试 (NEW!)
+│   └── test_backtester.py # 回测测试 (NEW!)
+├── main_mag7_strategy.py # Mag7策略主脚本 (NEW!)
+├── example_factors.py    # 因子使用示例
 └── requirements.txt      # 依赖包
 ```
 
@@ -153,16 +165,80 @@ Columns:
 - **美股**: 1-5个大写字母（如 AAPL, MSFT, GOOGL）
 - **A股**: 6位数字（如 600519, 000001）
 
+### 模型和回测 (NEW! 🎉)
+
+#### Mag7 每周轮动策略
+
+完整实现了基于机器学习的股票择时策略：
+
+```bash
+# 运行 Mag7 策略
+python main_mag7_strategy.py
+```
+
+**特性**：
+- ✅ **RankLoss 函数**: RankMSE, PairwiseRank, ListNet
+- ✅ **多种模型**: Random Forest, Ridge, LASSO, GBDT
+- ✅ **特征工程**: 基于 Qlib 算子的量价因子
+- ✅ **完整回测**: 包含交易成本、持仓管理、性能分析
+- ✅ **每周调仓**: 每周一选择预测收益率最高的股票
+
+**新功能：数据集保存和加载** 🆕
+```bash
+# 首次运行：保存数据集
+python main_mag7_strategy.py --save_dataset --start_date 2022-01-01 --end_date 2024-12-31
+
+# 后续快速运行：加载数据集（节省 60-80% 时间）
+python main_mag7_strategy.py --load_dataset output/dataset.pkl --model_type gbdt
+```
+
+详细使用指南请参考：
+- [Mag7 策略快速开始](QUICKSTART_MAG7.md)
+- [数据集管理指南](DATASET_USAGE.md) 🆕
+
+## 快速示例
+
+### 完整策略示例
+
+```python
+from src.data_engine import DataManager
+from src.models import FeatureEngineer, StockPredictor
+from src.backtester import BacktestEngine, WeeklyRotationStrategy
+
+# 1. 获取数据
+dm = DataManager()
+mag7 = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA']
+data_dict = {symbol: dm.fetch_data(symbol) for symbol in mag7}
+
+# 2. 特征工程
+fe = FeatureEngineer()
+X, y, dates, symbols = fe.prepare_dataset(data_dict, forward_days=5)
+
+# 3. 训练模型
+predictor = StockPredictor(model_type='random_forest', loss_type='rank_mse')
+predictor.fit(X, y)
+
+# 4. 回测
+engine = BacktestEngine(initial_capital=100000)
+strategy = WeeklyRotationStrategy(predictor, fe, top_k=1)
+
+# 运行回测...
+```
+
 ## 下一步计划
 
 - [x] 实现因子计算模块（Qlib 风格算子）✅
   - [x] 30+ 基础算子
   - [x] Alpha158 因子库
   - [x] Alpha360 因子库
-- [ ] 实现 Mag7 5日择股策略
-  - [ ] 实现 RankMSE 损失函数
-  - [ ] 训练预测模型
-- [ ] 集成 Backtrader 回测引擎
+- [x] 实现 Mag7 5日择股策略 ✅
+  - [x] 实现 RankMSE 损失函数
+  - [x] 训练预测模型
+  - [x] 完整回测引擎
+- [ ] 添加可视化功能
+  - [ ] 收益曲线图
+  - [ ] 持仓变化图
+  - [ ] 因子分析图
 - [ ] 添加 L2/L3 高频数据支持
 
 ## 依赖
@@ -173,6 +249,8 @@ Columns:
 - yfinance >= 0.2.32
 - akshare >= 1.12.0
 - pyarrow >= 14.0.0
+- scikit-learn >= 1.3.0 (机器学习)
+- scipy >= 1.11.0 (科学计算)
 - pytest >= 7.4.0 (测试)
 
 ## License
