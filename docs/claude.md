@@ -64,23 +64,6 @@ python main_mag7_strategy.py
 # 运行测试
 pytest test/ -v
 ```
-
-### 3. 查看详细文档
-
-根据你的需求选择对应文档：
-
-**数据获取**：
-- [项目快速开始](QUICKSTART.md) - 5分钟入门
-- [A股数据快速开始](CN_DATA_QUICKSTART.md) - A股数据使用
-
-**因子计算**：
-- [因子库快速开始](QUICKSTART_FACTORS.md) - 因子计算入门
-- [因子库使用指南](factors_guide.md) - 详细使用说明
-
-**策略回测**：
-- [Mag7 策略快速开始](QUICKSTART_MAG7.md) - 美股轮动策略
-- [数据集管理指南](DATASET_USAGE.md) - 数据集保存和加载
-
 ---
 
 ## 📚 完整文档导航
@@ -111,16 +94,6 @@ pytest test/ -v
 **所有开发规范、代码风格、架构原则请查看：**
 👉 [`.cursorrules`](../.cursorrules) 文件
 
-包含内容：
-- 📏 代码组织规范
-- 📊 数据处理规范
-- 🔬 因子工程规范
-- 🤖 模型训练规范
-- 🧪 回测规范
-- 📝 代码风格指南
-- 🧪 测试规范
-- 🚀 性能优化建议
-
 ### 📝 增量更新流程
 
 **当你需要添加新功能或改进时：**
@@ -136,7 +109,6 @@ pytest test/ -v
 
 3. **更新文档** 📚
    - 更新 `CHANGELOG.md` 记录变更
-   - 如需要，更新对应的 QUICKSTART 文档
    - 重要功能更新 `README.md`
 
 4. **代码审查** ✅

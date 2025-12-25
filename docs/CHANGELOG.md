@@ -4,6 +4,189 @@
 
 ---
 
+## [1.4.0] - 2025-12-25
+
+### 🎯 主题：LLM 模块 - Gemini Deep Research 集成
+
+#### ✨ 新增功能
+
+##### LLM 模块 (`src/llm/`)
+- **Gemini Deep Research API 客户端** (`gemini_client.py`)
+  - 支持 Gemini Deep Research API 调用
+  - 自动重试和错误处理机制
+  - 批量研究支持
+  - 完整的日志记录
+  - 支持自定义模型参数（temperature, max_tokens 等）
+
+- **报告管理器** (`report_manager.py`)
+  - 按日期自动组织报告（`data/reports/YYYY-MM-DD/`）
+  - 保存报告内容、元数据和思考过程
+  - 报告检索和加载功能
+  - 关键词搜索（支持元数据和内容搜索）
+  - 报告删除和管理功能
+
+##### 示例和文档
+- ✅ `example_llm.py` - 5 个完整使用示例
+  - 基础研究示例
+  - 批量研究示例
+  - 报告管理示例
+  - 加载报告示例
+  - 自定义日期保存示例
+
+- ✅ `docs/LLM_MODULE.md` - LLM 模块详细文档
+  - 快速开始指南
+  - API 参考
+  - 使用场景示例
+  - 与量化项目集成
+  - 最佳实践
+
+#### 🧪 测试覆盖
+- 新增 `test/test_llm.py`
+  - **40+ 个测试用例**
+  - 覆盖 GeminiDeepResearchClient 所有功能
+  - 覆盖 ReportManager 所有功能
+  - Mock API 调用测试
+  - 错误处理测试
+
+#### 💻 使用示例
+
+```python
+from src.llm import GeminiDeepResearchClient, ReportManager
+
+# 初始化
+client = GeminiDeepResearchClient()
+manager = ReportManager(base_dir='data/reports')
+
+# 执行研究
+result = client.deep_research(
+    query="分析特斯拉 (TSLA) 2024年Q4的财务表现"
+)
+
+# 保存报告（自动按日期组织）
+report_path = manager.save_report(
+    report_data=result,
+    filename='tsla_q4_2024_analysis'
+)
+```
+
+#### 🎨 功能特性
+- ✅ 环境变量或代码配置 API Key
+- ✅ 自动重试机制（最多 3 次）
+- ✅ 批量请求支持（自动延迟避免限流）
+- ✅ 报告按日期自动组织
+- ✅ 完整的元数据管理
+- ✅ 支持搜索和检索
+- ✅ 思考过程单独保存
+
+#### 📊 应用场景
+- 股票深度研究（基本面分析、技术分析）
+- 行业研究（竞争格局、趋势分析）
+- 定期研究报告（每日市场分析）
+- 批量竞品分析
+- 与量化分析结合（数据驱动的研究报告）
+
+#### 📦 依赖更新
+- 新增 `requests >= 2.31.0`
+
+#### 📁 目录结构
+
+```
+data/reports/
+├── 2024-12-25/
+│   ├── tsla_q4_2024_analysis.txt          # 报告内容
+│   ├── tsla_q4_2024_analysis.json         # 元数据
+│   └── tsla_q4_2024_analysis_thinking.txt # 思考过程
+└── 2024-12-24/
+    └── ...
+```
+
+---
+
+## [1.3.0] - 2025-12-25
+
+### 🎯 主题：A股次日高点预测策略
+
+#### ✨ 新增功能
+
+##### A股次日高点预测完整策略
+- **核心策略文件** (`cn_intraday_high_strategy.py`)
+  - 预测次日开盘后30分钟内的最高涨幅
+  - 多分类模型：将涨幅分为5个桶 (`<-3%`, `-3%~0%`, `0%~3%`, `3%~6%`, `>6%`)
+  - 完整的数据准备、特征工程、模型训练、回测流程
+
+- **A股特色因子库**
+  - **量能因子**：换手率分位数、量比、成交量变化率
+  - **竞价因子**：竞价量占比、竞价涨幅（需分钟线数据）
+  - **情绪因子**：连续涨跌天数、创新高/新低标记
+  - **波动率因子**：多周期历史波动率、上下行波动率
+  - 共80+个A股特色因子，结合Alpha158形成完整特征集
+
+- **多分类预测模型**
+  - 支持随机森林（Random Forest）
+  - 支持梯度提升树（GBDT）
+  - 自动处理样本不平衡（class_weight='balanced'）
+  - 特征标准化和重要性分析
+
+- **回测引擎**
+  - A股交易规则：T+1、佣金0.03%、印花税0.05%
+  - 策略逻辑：预测涨幅>=3%时开盘买入，30分钟后卖出
+  - 完整性能指标：收益率、夏普比率、最大回撤、胜率等
+
+##### 金风科技演示脚本 (`demo_cn_intraday_high.py`)
+- 完整的端到端演示流程
+- 使用金风科技(002202)作为示例
+- 自动生成交易记录和投资组合历史
+- 详细的策略评估报告
+
+##### 详细文档
+- **策略文档** (`docs/CN_INTRADAY_HIGH_STRATEGY.md`)
+  - 策略逻辑详解
+  - 特征工程说明
+  - 使用指南
+  - 性能优化建议
+  - 风险提示
+
+#### 🎨 优化改进
+
+- 兼容无分钟线数据的情况（用次日开盘价近似）
+- 自动识别市场类型（A股/美股）
+- 灵活的模型参数配置
+- 完善的错误处理和用户提示
+
+#### 💻 使用示例
+
+```bash
+# 运行金风科技演示
+python demo_cn_intraday_high.py
+
+# 自定义股票
+from cn_intraday_high_strategy import CNIntradayHighPredictor
+predictor = CNIntradayHighPredictor(model_type='random_forest')
+X, y, dates = predictor.prepare_dataset('600519', '2022-01-01', '2024-12-20')
+predictor.train(X, y)
+```
+
+#### 📊 输出文件
+
+- `output/cn_intraday_high_002202.pkl`: 训练好的模型
+- `output/trades_002202.csv`: 交易记录
+- `output/portfolio_002202.csv`: 投资组合历史
+
+#### ⚠️ 已知限制
+
+1. **分钟线数据**：AkShare的分钟线数据可能不稳定，建议使用付费数据源
+2. **T+1限制**：策略假设次日开盘买入、30分钟后卖出，需要融券工具
+3. **样本不平衡**：高涨幅样本较少，模型可能倾向预测中等涨幅
+
+#### 🔜 下一步计划
+
+- 优化样本不平衡问题（SMOTE等方法）
+- 集成更多模型（LightGBM、XGBoost）
+- 实现多股票池选股
+- 添加可视化功能
+
+---
+
 ## [1.2.0] - 2024-12-22
 
 ### 🎯 主题：数据集管理与日期参数控制

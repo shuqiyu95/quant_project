@@ -14,13 +14,20 @@
 - ✅ **时区处理**: 自动处理不同市场的时区（US/Eastern, Asia/Shanghai）
 - ✅ **数据集管理** 🆕: 保存/加载处理好的训练测试数据集，节省 60-80% 时间
 
-### 因子库 (NEW! 🎉)
+### 因子库
 - ✅ **30+ 基础算子**: Ref, MA, Std, Slope, RSI, MACD 等
 - ✅ **Alpha158 因子库**: 158+ 个经典技术指标因子
 - ✅ **Alpha360 因子库**: 360+ 个扩展因子
 - ✅ **Qlib 风格**: 兼容 Qlib 的表达式语法
 - ✅ **向量化计算**: 基于 Pandas 的高性能实现
 - ✅ **多股票支持**: 支持单股票和多股票批量计算
+
+### LLM 模块 (NEW! 🎉)
+- ✅ **Gemini Deep Research**: 集成 Gemini AI 深度研究能力
+- ✅ **自动化报告**: 生成股票、行业深度研究报告
+- ✅ **报告管理**: 按日期自动组织和管理研究报告
+- ✅ **批量研究**: 支持批量执行研究任务
+- ✅ **智能搜索**: 关键词搜索历史报告
 
 ## 项目结构
 
@@ -58,10 +65,15 @@ quant_project/
 │   │   ├── strategy.py             # 交易策略
 │   │   ├── performance.py          # 性能分析
 │   │   └── __init__.py
+│   ├── llm/                        # ✅ LLM 模块（NEW! 🎉）
+│   │   ├── gemini_client.py        # Gemini API 客户端
+│   │   ├── report_manager.py       # 报告管理器
+│   │   └── __init__.py
 │   └── utils/                      # 🔧 工具函数
 ├── data/                           # 💾 本地数据缓存
 │   ├── cn/                         # A股数据（Parquet）
 │   ├── us/                         # 美股数据（Parquet）
+│   ├── reports/                    # 📄 LLM 研究报告（NEW! 🎉）
 │   └── metadata/                   # 元数据（JSON）
 ├── test/                           # 🧪 测试套件
 │   ├── test_data_engine.py
@@ -164,6 +176,52 @@ for symbol in ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA']:
 - [因子库快速开始](docs/QUICKSTART_FACTORS.md) - 5 分钟快速上手
 - [示例代码](example_factors.py) - 实用代码示例
 
+#### LLM 研究报告生成 (NEW! 🎉)
+
+```python
+from src.llm import GeminiDeepResearchClient, ReportManager
+
+# 初始化（需要设置环境变量 GEMINI_API_KEY）
+client = GeminiDeepResearchClient()
+manager = ReportManager(base_dir='data/reports')
+
+# 执行深度研究
+result = client.deep_research(
+    query="分析特斯拉 (TSLA) 2024年Q4的财务表现",
+    metadata={'ticker': 'TSLA', 'quarter': 'Q4 2024'}
+)
+
+# 自动保存报告（按日期组织）
+report_path = manager.save_report(
+    report_data=result,
+    filename='tsla_q4_2024_analysis'
+)
+
+# 搜索历史报告
+reports = manager.search_reports(keyword='TSLA')
+
+# 批量研究
+queries = [
+    "分析英伟达 (NVDA) 在AI芯片市场的竞争优势",
+    "评估微软 (MSFT) 云计算业务的增长前景"
+]
+results = client.batch_research(queries)
+```
+
+**报告目录结构**：
+```
+data/reports/
+├── 2024-12-25/
+│   ├── tsla_q4_2024_analysis.txt        # 报告内容
+│   ├── tsla_q4_2024_analysis.json       # 元数据
+│   └── tsla_q4_2024_analysis_thinking.txt  # 思考过程
+└── ...
+```
+
+📖 **详细文档**：
+- [LLM 模块使用指南](docs/LLM_MODULE.md) - 完整使用文档
+- [示例代码](example_llm.py) - 5 个实用示例
+
 ## 数据格式
 
 所有获取的数据都是标准化的 Pandas DataFrame：
@@ -257,6 +315,7 @@ strategy = WeeklyRotationStrategy(predictor, fe, top_k=1)
 - [开发指南](docs/claude.md) - 完整的开发指南和架构设计
 - [因子库使用指南](docs/factors_guide.md) - 因子库详细文档
 - [数据集管理指南](docs/DATASET_USAGE.md) - 数据集保存和加载
+- [LLM 模块使用指南](docs/LLM_MODULE.md) - LLM 研究报告生成 (NEW! 🎉)
 
 ### 🇨🇳 A股数据模块
 - [A股数据快速开始](docs/CN_DATA_QUICKSTART.md) - 5 分钟上手
@@ -277,6 +336,7 @@ strategy = WeeklyRotationStrategy(predictor, fe, top_k=1)
 - [x] Mag7 每周轮动策略
 - [x] 回测引擎
 - [x] 数据集管理功能
+- [x] LLM 模块（Gemini Deep Research）🎉
 - [x] 完整测试套件
 - [x] 文档体系
 
@@ -303,6 +363,7 @@ strategy = WeeklyRotationStrategy(predictor, fe, top_k=1)
 - pyarrow >= 14.0.0
 - scikit-learn >= 1.3.0 (机器学习)
 - scipy >= 1.11.0 (科学计算)
+- requests >= 2.31.0 (LLM API 调用)
 - pytest >= 7.4.0 (测试)
 
 ## License
