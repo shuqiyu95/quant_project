@@ -45,7 +45,7 @@ class GeminiDeepResearchClient:
         Raises:
             ValueError: 如果 API Key 未提供或未找到
         """
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY', "AIzaSyAtoHzIw_JbHcJO59RNiGLDVazx4p-NbmE")
+        self.api_key = api_key or os.getenv('GEMINI_API_KEY', "")
         if not self.api_key:
             raise ValueError(
                 "API Key 未提供。请通过参数传入或设置环境变量 GEMINI_API_KEY"
